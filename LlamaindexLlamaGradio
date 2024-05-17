@@ -1,10 +1,8 @@
 from dotenv import load_dotenv
 import os
 from transformers import AutoTokenizer
-import torch
-from llama_index.llms.huggingface import HuggingFaceLLM
-from llama_index.llms.huggingface import HuggingFaceInferenceAPI
-from llama_index.core.llms import ChatMessage
+import gradio as gr
+from llama_index.llms.huggingface import HuggingFaceLLM, HuggingFaceInferenceAPI
 from llama_index.core import SimpleDirectoryReader, VectorStoreIndex, get_response_synthesizer
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 from llama_index.core import Settings
@@ -12,80 +10,73 @@ from llama_index.core.retrievers import VectorIndexRetriever
 from llama_index.core.query_engine import RetrieverQueryEngine
 from llama_index.core.postprocessor import SimilarityPostprocessor
 from llama_index.core import StorageContext, load_index_from_storage
-from transformers import AutoModel
-import pandas as pd
 
 load_dotenv()
 
 hf_token = os.getenv("hf_token")
 
-
-
+# Load tokenizer
 tokenizer = AutoTokenizer.from_pretrained(
     "meta-llama/Meta-Llama-3-8B-Instruct",
     token=hf_token,
 )
 
+# Define stopping IDs
 stopping_ids = [
     tokenizer.eos_token_id,
-    tokenizer.convert_tokens_to_ids("<|eot_id|>"),
+    tokenizer.convert_tokens_to_ids(""),
 ]
 
-
+# Load LLM
 llm = HuggingFaceInferenceAPI(
-    model_name="https://inupe8mnmt4plppl.us-east-1.aws.endpoints.huggingface.cloud",
-    token= hf_token
+    model_name="https://htshuyazde0bg6dy.us-east-1.aws.endpoints.huggingface.cloud",
+    token=hf_token
 )
 
+# Load embedding model
 embed_model = HuggingFaceEmbedding(model_name="BAAI/bge-small-en-v1.5")
 
-# embed_model = AutoModel.from_pretrained('bert-base-uncased')
-
+# Configure settings
 Settings.embed_model = embed_model
-
 Settings.llm = llm
 
-
+# Load storage context and index
 storage_context = StorageContext.from_defaults(persist_dir=".\\IndexLlamaCSV")
-
 index = load_index_from_storage(storage_context)
 
-
-# configure retriever
+# Configure retriever
 retriever = VectorIndexRetriever(
     index=index,
     similarity_top_k=10,
 )
 
-# configure response synthesizer
+# Configure response synthesizer
 response_synthesizer = get_response_synthesizer()
 
-# assemble query engine
+# Assemble query engine
 query_engine = RetrieverQueryEngine(
     retriever=retriever,
     response_synthesizer=response_synthesizer,
     node_postprocessors=[SimilarityPostprocessor(similarity_cutoff=0.5)],
 )
 
+# Function to handle chat interaction
+def chat(user_input, history):
+    ai_response = query_engine.query(user_input)
+    ai_text = ai_response.response  # Extract the text from the response
+    history.append((user_input, ai_text))
+    return history, history
 
+# Create the Gradio interface
+with gr.Blocks() as demo:
+    chatbot = gr.Chatbot()
+    message = gr.Textbox(label="You:")
+    state = gr.State([])
 
-# response = query_engine.query("What the fuck is a peak time event?")
+    def submit_message(user_input, history):
+        new_history, updated_history = chat(user_input, history)
+        return "", updated_history
 
+    message.submit(submit_message, [message, state], [message, chatbot])
 
-
-# print(response)
-
-df = pd.read_csv(r"C:\\Users\\adria\\OneDrive\\Desktop\\OSU\\BANA 572\\TestQuestions.csv")
-
-print(df.head())
-row_num = 0
-for index, row in df.iterrows():
-    row_num += 1
-    print(row_num)
-    response = query_engine.query(row['Questions'])
-    df.at[index, 'Output'] = response
-    print(row['Questions'])
-    print(response)
-    print("")
-
-df.to_csv(r"C:\\Users\\adria\\OneDrive\\Desktop\\OSU\\BANA 572\\TestQuestionsOutput.csv", index=False)
+demo.launch(server_name="127.0.0.2", server_port=7861)
