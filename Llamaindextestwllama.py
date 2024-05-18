@@ -69,13 +69,9 @@ query_engine = RetrieverQueryEngine(
 
 
 
-# response = query_engine.query("What the fuck is a peak time event?")
-
-
-
 # print(response)
 
-df = pd.read_csv(r"C:\\Users\\adria\\OneDrive\\Desktop\\OSU\\BANA 572\\TestQuestions.csv")
+df = pd.read_csv("C:\\Users\\adria\\OneDrive\\Desktop\\OSU\BANA 577 Capstone\\TestQuestions.csv")
 
 print(df.head())
 row_num = 0
@@ -83,9 +79,10 @@ for index, row in df.iterrows():
     row_num += 1
     print(row_num)
     response = query_engine.query(row['Questions'])
+    response = response[:50]
     df.at[index, 'Output'] = response
     print(row['Questions'])
     print(response)
     print("")
 
-df.to_csv(r"C:\\Users\\adria\\OneDrive\\Desktop\\OSU\\BANA 572\\TestQuestionsOutput.csv", index=False)
+df.to_csv(r"C:\\Users\\adria\\OneDrive\\Desktop\\OSU\BANA 577 Capstone\\TestQuestionsOutput.csv", index=False)
