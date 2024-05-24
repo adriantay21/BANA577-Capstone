@@ -39,10 +39,7 @@ query_engine = RetrieverQueryEngine(
 
 # response = query_engine.query("How to track energy use?")
 chat_engine = index.as_chat_engine()
-response = chat_engine.chat("What the fuck is a peak time event?")
 
-
-print(response)
 
 df = pd.read_csv(r"C:\\Users\\adria\\OneDrive\\Desktop\\OSU\\BANA 572\\TestQuestions.csv")
 
@@ -57,4 +54,4 @@ for index, row in df.iterrows():
     print(response)
     print("")
 
-df.to_csv(r"C:\\Users\\adria\\OneDrive\\Desktop\\OSU\\BANA 572\\TestQuestionsOutput.csv", index=False)
+df.to_csv(r"C:\\Users\\adria\\OneDrive\\Desktop\\OSU\\BANA 572\\TestQuestionsOutputGPTBaseLlamaIndex.csv", index=False)

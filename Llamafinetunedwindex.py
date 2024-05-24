@@ -33,9 +33,10 @@ stopping_ids = [
 
 
 llm = HuggingFaceInferenceAPI(
-    model_name= "https://inupe8mnmt4plppl.us-east-1.aws.endpoints.huggingface.cloud",
+    model_name= "https://lqrnv42wmh9orsli.us-east-1.aws.endpoints.huggingface.cloud",
     token= hf_token,
     max_tokens=30,
+
 )
 
 embed_model = HuggingFaceEmbedding(model_name="BAAI/bge-small-en-v1.5")
@@ -69,33 +70,26 @@ query_engine = RetrieverQueryEngine(
 )
 
 
-response = query_engine.query('How do I pay my bill?')
-print(response)
 
-# while True:
-#     question = input("Ask a question: ")
-#     question = ("You are a chatbot for Portland General Electric (PGE) You help answer questions regarding PGE and it's services. Make your answer concise and only answer the question. Question: " + str(question))
-#     response = query_engine.query(question)
-#     response = re.sub(r'(?<!\.)\s*[^.!?]*$', '', str(response))
-#     print(response)
+# print(response)
 
 df = pd.read_csv("C:\\Users\\adria\\OneDrive\\Desktop\\Github repos\\BANA577-Capstone\\Model output - 30 Questions.csv")
+
 print(df.head())
 row_num = 0
 for index, row in df.iterrows():
     row_num += 1
     print(row_num)
+
     question = ("You are a chatbot for Portland General Electric (PGE) You help answer questions regarding PGE and it's services. Make your answer concise and to the point. Only answer the question. Question: " + str(row['Question']))
     response = query_engine.query(question)
     
     # using regex, remove the last sentence in the string if it does not end with a "."
     response = re.sub(r'(?<!\.)\s*[^.!?]*$', '', str(response))
 
-
-
     df.at[index, 'Output'] = response
     print(row['Question'])
     print(response)
     print("")
 
-df.to_csv(r".\\TestQuestionsOutputLlamawLlamaIndex.csv", index=False)
+df.to_csv(r".\\TestQuestionsOutputLlamafinetunedwRAG.csv", index=False)

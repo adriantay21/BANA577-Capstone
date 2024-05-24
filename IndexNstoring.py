@@ -10,7 +10,7 @@ load_dotenv()
 
 # openai.api_key = os.getenv("gpt_api_key")
 
-# #embed for llama
+#embed for llama
 embed_model = HuggingFaceEmbedding(model_name="BAAI/bge-small-en-v1.5")
 Settings.embed_model = embed_model
 
@@ -19,7 +19,7 @@ Settings.embed_model = embed_model
 parser = PandasCSVReader()
 file_extractor = {".csv": parser}  # Add other CSV formats as needed
 documents = SimpleDirectoryReader(
-    input_files=["C:\\Users\\adria\\OneDrive\\Desktop\\Github repos\\BANA577-Capstone\\Training Data cleaned.csv"], file_extractor=file_extractor
+    input_files=["C:\\Users\\adria\\OneDrive\\Desktop\\Github repos\\BANA577-Capstone\\combined_data_cleaned.csv"], file_extractor=file_extractor
 ).load_data()
 
 # reader = SimpleDirectoryReader(input_dir="C:\\Users\\adria\\OneDrive\\Desktop\\COBChatBot\\Data")
@@ -29,10 +29,10 @@ print(len(documents))
 for x in range(len(documents)):
     documents[x].excluded_llm_metadata_keys = ['file_type', 'file_size', 'creation_date', 'last_modified_date', 'last_accessed_date', 'file_path','file_name']
     documents[x].excluded_embed_metadata_keys = ['file_type', 'file_size', 'creation_date', 'last_modified_date', 'last_accessed_date', 'file_path','file_name']
-# breakpoint()
+# # breakpoint()
 
 
 
 index = VectorStoreIndex.from_documents(documents,show_progress=True)
 
-index.storage_context.persist(persist_dir=".\\IndexLlamaCSV")
+index.storage_context.persist(persist_dir=".\\IndexGPTCSV")
