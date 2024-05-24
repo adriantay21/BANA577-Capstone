@@ -1,10 +1,17 @@
 import requests
 import pandas as pd
 import re
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+hf_token = os.getenv("hf_token")
+
 API_URL = "https://lqrnv42wmh9orsli.us-east-1.aws.endpoints.huggingface.cloud"
 headers = {
 	"Accept" : "application/json",
-	"Authorization": "Bearer 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",
+	"Authorization": f"Bearer {hf_token}",
 	"Content-Type": "application/json" 
 }
 
